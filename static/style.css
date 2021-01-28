@@ -1,0 +1,14 @@
+body{
+    margin: 0 auto;
+    padding: 0;
+}
+.main{
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 0;
+}
+input,
+textarea {
+    background-color: #666;
+    color: #FFF;
+}

@@ -2,13 +2,100 @@
 
 {% block title %}Home{% endblock %}
 
-{% block body %}
-<div class="tweet-card">
-        <h2></h2>
-        <form action="" method="POST">
-            <input type="text" placeholder="Title" name="title">
-            <textarea name="tweet" id="" cols="30" rows="10" placeholder="Write your tweet text here..."></textarea>
-            <button type="submit">Tweet it</button>
-        </form>
+{% block nav %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#"><img src="{{url_for('static', filename='icon.ico')}}" alt="logo" width="30" height="30"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      
+      <form class="d-flex">
+        <input class="form-control me-2 bg-dark" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Dropdown
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+        </li>
+      </ul>
+      </form>
     </div>
+  </div>
+</nav>
+{% endblock %}
+
+
+{% block body %}
+<script>
+    function dismiss_alert(){
+        document.querySelector('alert').remove()
+    }
+    function waitAndClose(){
+        console.log("Hey Guys")
+        document.setInterval(dismiss_alert(), 4)
+        console.log('Hey world')
+    }
+</script>
+{% if tweet_sucess==True %}
+    <div class="alert alert-success" role="alert" onload="waitAndClose()">Your tweet was sucessfully posted.</div>
+{% elif tweet_sucess==False %}
+    <div class="alert alert-danger" role="alert">There was a problem posting your tweet.</div>
+{% elif tweet_sucess==None %}
+{% endif %}
+
+
+<div class="tweet-card" style="display: block;">
+    <h2></h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Post as..</label>
+            <input type="text" class="form-control" placeholder="Anonymous" name="name" id="name" required />
+        </div>
+        <div class="mb-3">
+            <label for="title" class="form-label">Tweet Title</label>
+            <input class="form-control" type="text" placeholder="Brief for your tweet (optional)" name="title">
+        </div>
+        <div class="mb-3">
+            <label for="tweet" class="form-label">Tweet</label>
+            <textarea class="form-control" name="tweet" id="tweet" placeholder="Write your tweet text here..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Tweet it</button>
+    </form>
+</div>
+
+{% for tweet in tweets %}
+<div class="card text-center">
+  <div class="card-header">
+    Featured
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Special title treatment</h5>
+    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+    <a href="#" class="btn btn-primary">Go somewhere</a>
+  </div>
+  <div class="card-footer text-muted">
+    2 days ago
+  </div>
+</div>
+{% endfor %}
+
+
 {% endblock %}
