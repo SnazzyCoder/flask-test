@@ -9,5 +9,5 @@ def home():
     return render_template('home.html')
 
 if __name__ == '__main__':
-    #DEBUG is SET to TRUE. CHANGE FOR PROD
+    #DEBUG is SET to TRUE. CHANGE FOR PRODUCTION
     app.run(port=5000,debug=True)
