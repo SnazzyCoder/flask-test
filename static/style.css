@@ -3,7 +3,7 @@ body{
     padding: 0;
 }
 .main{
-    max-width: 300px;
+    max-width: 500px;
     margin: 0 auto;
     padding: 0;
 }
@@ -11,4 +11,7 @@ input,
 textarea {
     background-color: #666;
     color: #FFF;
+}
+nav{
+    margin-bottom: 10px;
 }

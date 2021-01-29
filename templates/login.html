@@ -1,0 +1,39 @@
+{% extends "index.html" %}
+
+
+{% block title %}
+Login
+{% endblock %}
+
+
+{% block body %}
+
+{% if recent %}
+    <div class="alert alert-success" role="alert">You have been logged out sucessfully.</div>
+{% endif %}
+
+{% if failed %}
+    <div class="alert alert-danger" role="alert">Incorrect username or password. If you are new, <a href="{{url_for('signup')}}" class="link-sucess">Sign Up</a>.</div>
+{% endif %}
+
+{% if error %}
+    <div class="alert alert-danger" role="alert">The {{ error }} occured.</div>
+{% endif %}
+
+<div class="container login-container row card card-body">
+    <form method="POST" class="row g-3">
+        <div class="col-12">
+            <label class="form-label" for="username">Username</label>
+            <div class="input-group">
+                <div class="input-group-text">@</div>
+                <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" required>
+            </div>
+        </div>
+        <div class="col-12">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign in!</button>
+    </form>
+</div>
+{% endblock %}
