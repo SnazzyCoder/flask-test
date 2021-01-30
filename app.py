@@ -7,6 +7,7 @@ import resources.config as config
 import os
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 app.config['MYSQL_DATABASE_HOST'] = "remotemysql.com"
 app.config['MYSQL_DATABASE_PORT'] = 3306
@@ -143,7 +144,6 @@ def signup(error=None):
     return render_template("signup.html", error=error)
 
 if __name__ == '__main__':
-    app.secret_key = os.urandom(24)
     # DEBUG is SET to TRUE. CHANGE FOR PRODUCTION
     app.run(port=5000, debug=True)
     # pass
