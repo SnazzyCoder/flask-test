@@ -159,7 +159,7 @@ def signup(error=None):
         
     return render_template("signup.html", error=error)
 
-@app.route("profile")
+@app.route("/profile")
 def func():
     return render_template('profile.html')
 
