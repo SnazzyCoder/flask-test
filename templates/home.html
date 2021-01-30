@@ -3,9 +3,9 @@
 {% block title %}Home{% endblock %}
 
 {% block nav %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#"><img src="{{url_for('static', filename='icon.ico')}}" alt="logo" width="30" height="30"></a>
+    <a class="navbar-brand" href="#"><img src="{{url_for('static', filename='images/icon.ico')}}" alt="logo" width="30" height="30"></a>
     
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#search" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,43 +42,46 @@
         console.log('Hey world')
     }
 </script>
-{% if tweet_sucess==True %}
-    <div class="alert alert-success" role="alert" onload="waitAndClose()">Your tweet was sucessfully posted.</div>
-{% elif tweet_sucess==False %}
-    <div class="alert alert-danger" role="alert">There was a problem posting your tweet.</div>
-{% elif tweet_sucess==None %}
-{% endif %}
-
-<a class="btn btn-primary" data-bs-toggle="collapse" href="#tweet-card" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Tweet Something</a>
-<div class="tweet-card collapse" id="tweet-card">
-  <div class="card card-body">
-    <h4 class="h4">Tweet Something</h4>
-    <form method="POST">
-        <div class="mb-3">
-            <label for="tweet" class="form-label">Tweet</label>
-            <textarea class="form-control" name="tweet" id="tweet" placeholder="Write your tweet text here..." required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Tweet it</button>
-    </form>
+<div class="body container gap-3" style="margin-top: 80px;">
+  {% if tweet_sucess==True %}
+      <div class="alert alert-success" role="alert" onload="waitAndClose()">Your tweet was sucessfully posted.</div>
+  {% elif tweet_sucess==False %}
+      <div class="alert alert-danger" role="alert">There was a problem posting your tweet.</div>
+  {% elif tweet_sucess==None %}
+  {% endif %}
+  
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#tweet-card" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Tweet Something</a>
+  <div class="tweet-card collapse" id="tweet-card">
+    <div class="card card-body">
+      <h4 class="h4">Tweet Something</h4>
+      <form method="POST">
+          <div class="mb-3">
+              <label for="tweet" class="form-label">Tweet</label>
+              <textarea class="form-control" name="tweet" id="tweet" placeholder="Write your tweet text here..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Tweet it</button>
+      </form>
+    </div>
   </div>
-</div>
+  
 
 {% for tweet in tweets %}
-<div class="card shadow">
-  <div class="card-header">
-    By {% if tweet['name'] %}
-      {{ ' ' + tweet['name'] }}
-    {% endif %}  @{{tweet['username']}}
+  <div class="card shadow">
+    <div class="card-header">
+      By {% if tweet['name'] %}
+        {{ ' ' + tweet['name'] }}
+      {% endif %}  @{{tweet['username']}}
+    </div>
+    <div class="card-body">
+      <h5 class="card-text"></h5>
+      <p class="card-title">{{tweet['tweet_content']}}</p>
+    </div>
+    <div class="card-footer text-muted">
+      {{ tweet['tweet_at'] }}
+    </div>
   </div>
-  <div class="card-body">
-    <h5 class="card-text"></h5>
-    <p class="card-title">{{tweet['tweet_content']}}</p>
-  </div>
-  <div class="card-footer text-muted">
-    {{ tweet['tweet_at'] }}
-  </div>
-</div>
 {% endfor %}
-
+  
+</div>
 
 {% endblock %}

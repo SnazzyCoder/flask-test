@@ -18,6 +18,7 @@ mysql = MySQL()
 mysql.init_app(app)
 
 global username
+username=""
 salt_string = 'A6gX5'
 error_messages = {'db_error': 'Unable to make your entry into our database.'}
 
@@ -55,9 +56,21 @@ def get_name(_username):
 def get_tweets():
     conn = mysql.connect()
     cursor = conn.cursor()
-
+    
+    #get following
     try:
-        cursor.execute("select * from tweets order by tweet_at desc limit 10")
+        cursor.execute("select following from follows where follower=%s limit 600", (session.get('username')))
+    except Exception as e:
+        print("!!!!   error : ", e)
+    finally:
+        conn.close()
+    # Make tuple out of following
+    _res = [i[0] for i in cursor.fetchall()]
+    print(_res)
+    
+    # Get tweets
+    try:
+        cursor.execute("select * from tweets where username in (%s) order by tweet_at desc limit 20")
     except Exception as e:
         print("!!!!   error : ", e)
     finally:
@@ -95,19 +108,21 @@ def hash_password(raw: str):
 def home():
     if request.method=='POST':
         success = tweet(request.form['tweet'])
-        return render_template('home.html', username=session['username'], tweet_sucess=success, tweets=get_tweets())
+        return render_template('home.html', username=session.get("username"), tweet_sucess=success, tweets=get_tweets())
     
     if 'username' in session:
-        return render_template('home.html', tweets=get_tweets())
+        return render_template('home.html', tweets=get_tweets(), username=session.get('username'))
     return redirect(url_for('login'))
 
 @app.route("/login", methods=["POST", "GET"])
-def login():
+def login(recent=False):
     if request.method == 'POST':
         username = request.form.get('username')
         result = check_login(username, hash_password(request.form.get('password')))
         if result == True:
             session['username'] = username
+            while session['username'] != username:
+                session['username'] = username
             return redirect(url_for('home'))
         elif type(result) == str:
             return render_template("login.html", error=type(result).__name__) 
@@ -115,12 +130,12 @@ def login():
             return render_template("login.html", failed = True)
     if 'username' in session:
         return redirect(url_for('home'))
-    return render_template("login.html")
+    return render_template("login.html", recent=recent)
 
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return redirect(url_for('login'))
+    return redirect(url_for('login', recent=True))
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup(error=None):
@@ -143,6 +158,9 @@ def signup(error=None):
         return redirect(url_for('signup', error=error_messages['db_error']))
         
     return render_template("signup.html", error=error)
+
+@app.route("profile")
+def func():
 
 if __name__ == '__main__':
     # DEBUG is SET to TRUE. CHANGE FOR PRODUCTION

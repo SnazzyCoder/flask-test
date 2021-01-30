@@ -3,10 +3,12 @@ body{
     padding: 0;
     background-image: url('bg.jpg');
     background-position: center;
-    /* Center the image */
-    background-repeat: no-repeat;
-    /* Do not repeat the image */
+    background: linear-gradient(to right, #ffefba, #ffffff) top right no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
     background-size: cover;
+    background-attachment: fixed;
 }
 .main{
     max-width: 400px;
@@ -18,15 +20,10 @@ textarea {
     background-color: #666;
     color: #FFF;
 }
-nav{
-    margin-bottom: 10px;
-}
 .vertical{
     min-height: 100vh;
-    flex: 1;
     display: flex;
     align-items: center;
-    flex-direction: column;
     margin: auto;
 }
 .form-paded{

@@ -9,37 +9,39 @@ Login
 {% block body %}
 
 
-<div class="login-container container align-self-center">
-
-    {% if recent %}
-        <div class="alert alert-success" role="alert">You have been logged out sucessfully.</div>
-    {% endif %}
-
-    {% if failed %}
-        <div class="alert alert-danger" role="alert">Incorrect username or password. If you are new, <a href="{{url_for('signup')}}" class="link-sucess">Sign Up</a>.</div>
-    {% endif %}
-
-    {% if error %}
-        <div class="alert alert-danger" role="alert">The {{ error }} occured.</div>
-    {% endif %}
-
-    <div class="row card card-body shadow login-form-1">
-        <h4 class="h4 text-center">Log into Twitter 4 Men!</h4>
-        <form method="POST" class="row g-3 form-paded">
-            <div class="col-12">
-                <label class="form-label" for="username">Username</label>
-                <div class="input-group">
-                    <div class="input-group-text">@</div>
-                    <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" required>
+<div class="login-container container vertical">
+    <div>
+    
+        {% if recent %}
+            <div class="alert alert-success" role="alert">You have been logged out sucessfully.</div>
+        {% endif %}
+    
+        {% if failed %}
+            <div class="alert alert-danger" role="alert">Incorrect username or password. If you are new, <a href="{{url_for('signup')}}" class="link-sucess">Sign Up</a>.</div>
+        {% endif %}
+    
+        {% if error %}
+            <div class="alert alert-danger" role="alert">The {{ error }} occured.</div>
+        {% endif %}
+    
+        <div class="row card card-body shadow login-form-1">
+            <h4 class="h4 text-center">Log into Twitter 4 Men!</h4>
+            <form method="POST" class="row g-3 form-paded">
+                <div class="col-12">
+                    <label class="form-label" for="username">Username</label>
+                    <div class="input-group">
+                        <div class="input-group-text">@</div>
+                        <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" required>
+                    </div>
                 </div>
-            </div>
-            <div class="col-12">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Sign in!</button>
-        </form>
-        <p>New here? <a href="/signup" class="link-primary">Signup!</a></p>
+                <div class="col-12">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign in!</button>
+            </form>
+            <p>New here? <a href="/signup" class="link-primary">Signup!</a></p>
+        </div>
     </div>
 </div>
 {% endblock %}
