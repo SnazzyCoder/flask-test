@@ -6,46 +6,48 @@ Signup
 
 {% block body %}
 
-{% if error %}
-    <div class="alert alert-danger" role="alert">The {{ error }} occured.</div>
-{% endif %}
 
-<div class="vertical">
-    <div class="container login-container row card card-container vertical-center shadow">
-        <h4 class="h4 text-center">Sign up for Twitter 4 Men!</h4>
-        <form method="POST" class="row g-3 form-paded" id="form">
-            <div class="col-md-6">
-                <label class="form-label" for="username">Username</label>
-                <div class="input-group">
-                    <div class="input-group-text">@</div>
-                    <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" pattern="[A-Za-z0-9]*" title="Must start with a letter, contain letters and numbers, and should be of length 4 to 30" required autofocus maxlength="30" minlength="4">
+<div class="login-container container vertical">
+    <div>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">The {{ error }} occured.</div>
+        {% endif %}
+        <div class="row card card-body shadow login-form-1">
+            <h4 class="h4 text-center">Sign up for Twitter 4 Men!</h4>
+            <form method="POST" class="row g-3 form-paded" id="form">
+                <div class="col-md-6">
+                    <label class="form-label" for="username">Username</label>
+                    <div class="input-group">
+                        <div class="input-group-text">@</div>
+                        <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" pattern="[A-Za-z0-9]*" title="Must start with a letter, contain letters and numbers, and should be of length 4 to 30" required autofocus maxlength="30" minlength="4">
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label" for="name">Full Name</label>
-                <input type="text" class="form-control" name="name" id="name" placeholder="John Doe (optional)" required minlength="2" maxlength="30" pattern="[A-Za-z]*" title="Should contain only Alphabets.">
-            </div>
-            <div class="col-12">
-                <label for="email" class="form-label">E-mail</label>
-                <input type="email" class="form-control" id="email" placeholder="example@xyz.com" required>
-            </div>
-            <div class="col-md-6">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" id="password" placeholder="********" pattern="(?=.*\d)(?=.*[a-zA-Z]).{8,}" title="Must contain at least one Number and one Alphabet and at least 8 characters" minlength="8" required>
-            </div>
-            <div class="col-md-6">
-                <label for="confirm-password" class="form-label">Re-enter Password</label>
-                <input type="password" class="form-control" name="confirm-password" id="confirm-password" placeholder ="********" required>
-            </div>
-            <div class="col-12">
-                <input class="form-check-input" type="checkbox" id="show_password" onlick="reveal()">
-                <label class="form-check-label" for="show_password">
-                    Show password
-                </label>
-            </div>
-            <button type="submit" class="btn btn-primary" title="Please fill out the form first" id="submit">Sign Up!</button>
-        </form>
-        <p>Already have an account? <a href="/login" class="link-primary">Login</a> Here</p>
+                <div class="col-md-6">
+                    <label class="form-label" for="name">Full Name</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="John Doe (optional)" required minlength="2" maxlength="30" pattern="[A-Za-z]*" title="Should contain only Alphabets.">
+                </div>
+                <div class="col-12">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="email" placeholder="example@xyz.com" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password" id="password" placeholder="********" pattern="(?=.*\d)(?=.*[a-zA-Z]).{8,}" title="Must contain at least one Number and one Alphabet and at least 8 characters" minlength="8" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="confirm-password" class="form-label">Re-enter Password</label>
+                    <input type="password" class="form-control" name="confirm-password" id="confirm-password" placeholder ="********" required>
+                </div>
+                <div class="col-12">
+                    <input class="form-check-input" type="checkbox" id="show_password" onlick="reveal()">
+                    <label class="form-check-label" for="show_password">
+                        Show password
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary" title="Please fill out the form first" id="submit">Sign Up!</button>
+            </form>
+            <p>Already have an account? <a href="/login" class="link-primary">Login</a> Here</p>
+        </div>
     </div>
 </div>
 <script>

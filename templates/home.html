@@ -68,9 +68,9 @@
 {% for tweet in tweets %}
   <div class="card shadow">
     <div class="card-header">
-      By {% if tweet['name'] %}
-        {{ ' ' + tweet['name'] }}
-      {% endif %}  @{{tweet['username']}}
+      <a href="{{ tweet['username'] }}"></a>  By {% if tweet['name'] %}
+          {{ ' ' + tweet['name'] }}
+        {% endif %}  @{{tweet['username']}}
     </div>
     <div class="card-body">
       <h5 class="card-text"></h5>
