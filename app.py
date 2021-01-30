@@ -105,6 +105,11 @@ def logout():
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
+    if request.method == "POST":
+        cursor.execute("INSERT INTO users (username, name, password) values (%s, %s, %s)", (request.form['username'], request.form['name'], hash_password(request.form['password'])))
+        session['username'] = request.form['username']
+        return render_template("home.html")
+        
     return render_template("signup.html")
 
 if __name__ == '__main__':
