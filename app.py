@@ -17,8 +17,9 @@ mysql = MySQL()
 mysql.init_app(app)
 
 global username
-
 salt_string = 'A6gX5'
+error_messages = {'db_error': 'Unable to make your entry into our database.'}
+
 def tweet(content: str):
     content = html.escape(content)
     
@@ -27,7 +28,7 @@ def tweet(content: str):
     cursor = conn.cursor()
     
     try: 
-        cursor.execute(f"INSERT INTO tweets (username, tweet_content) values ('{random.randint(100000000, 999999999)}', %s)", (content))
+        cursor.execute(f"INSERT INTO tweets (username, tweet_content) values ('%s', %s)", (session['username'], content))
         conn.commit()
         success = True
     except Exception as e:
@@ -39,7 +40,16 @@ def tweet(content: str):
     except: success = False
     
     return success
-    
+
+def get_name(_username):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    result = cursor.execute("select name from users where username=%s limit 1;", (_username))
+    if int(result) >= 1:
+        return cursor.fetchone()[0]
+    else:
+        return False
+
 def get_tweets():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -51,7 +61,12 @@ def get_tweets():
     finally:
         conn.close()
     
-    return [dict(zip(("tweet_id", "username", "tweet_content", "tweet_at"), tweet)) for tweet in cursor.fetchall()]
+    # Decoding
+    result = [dict(zip(("tweet_id", "username", "tweet_content", "tweet_at"), tweet)) for tweet in cursor.fetchall()]
+    for i in result:
+        i['tweet_content'] = html.unescape(i['tweet_content'])
+        i['name'] = get_name(i['username'])
+    return result
 
 
 def check_login(_username, password):
@@ -96,6 +111,8 @@ def login():
             return render_template("login.html", error=type(result).__name__) 
         else:
             return render_template("login.html", failed = True)
+    if 'username' in session:
+        return redirect(url_for('home'))
     return render_template("login.html")
 
 @app.route("/logout")
@@ -104,13 +121,26 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route("/signup", methods=["POST", "GET"])
-def signup():
+def signup(error=None):
+    if 'username' in session:
+        return redirect(url_for('home'))
     if request.method == "POST":
-        cursor.execute("INSERT INTO users (username, name, password) values (%s, %s, %s)", (request.form['username'], request.form['name'], hash_password(request.form['password'])))
-        session['username'] = request.form['username']
-        return render_template("home.html")
+        conn = mysql.connect()
+        cursor = conn.cursor()
         
-    return render_template("signup.html")
+        username, name = request.form['username'], request.form['name']
+        try: 
+            result = cursor.execute("INSERT INTO users (username, name, password) values (%s, %s, %s)", (username, name, hash_password(request.form['password'])))
+            conn.commit()
+        except Exception as e:
+            return redirect(url_for('signup', error=e))
+        finally: conn.close()
+        if result >= 1:
+            session['username'] = request.form['username']
+            return render_template("home.html")
+        return redirect(url_for('signup', error=error_messages['db_error']))
+        
+    return render_template("signup.html", error=error)
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(24)

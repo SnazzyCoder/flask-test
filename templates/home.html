@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "base.html" %}
 
 {% block title %}Home{% endblock %}
 
@@ -55,14 +55,6 @@
     <h4 class="h4">Tweet Something</h4>
     <form method="POST">
         <div class="mb-3">
-            <label for="name" class="form-label">Post as..</label>
-            <input type="text" class="form-control" placeholder="Anonymous" name="name" id="name" required />
-        </div>
-        <div class="mb-3">
-            <label for="title" class="form-label">Tweet Title</label>
-            <input class="form-control" type="text" placeholder="Brief for your tweet (optional)" name="title">
-        </div>
-        <div class="mb-3">
             <label for="tweet" class="form-label">Tweet</label>
             <textarea class="form-control" name="tweet" id="tweet" placeholder="Write your tweet text here..." required></textarea>
         </div>
@@ -72,9 +64,11 @@
 </div>
 
 {% for tweet in tweets %}
-<div class="card">
+<div class="card shadow">
   <div class="card-header">
-    By {{tweet['username']}}
+    By {% if tweet['name'] %}
+      {{ ' ' + tweet['name'] }}
+    {% endif %}  @{{tweet['username']}}
   </div>
   <div class="card-body">
     <h5 class="card-text"></h5>

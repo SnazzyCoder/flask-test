@@ -1,9 +1,15 @@
 body{
     margin: 0 auto;
     padding: 0;
+    background-image: url('bg.jpg');
+    background-position: center;
+    /* Center the image */
+    background-repeat: no-repeat;
+    /* Do not repeat the image */
+    background-size: cover;
 }
 .main{
-    max-width: 500px;
+    max-width: 400px;
     margin: 0 auto;
     padding: 0;
 }
@@ -14,4 +20,15 @@ textarea {
 }
 nav{
     margin-bottom: 10px;
+}
+.vertical{
+    min-height: 100vh;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin: auto;
+}
+.form-paded{
+    padding: 0 0 10px;
 }
