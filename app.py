@@ -161,6 +161,9 @@ def signup(error=None):
 
 @app.route("profile")
 def func():
+    return render_template('profile.html')
+
+
 
 if __name__ == '__main__':
     # DEBUG is SET to TRUE. CHANGE FOR PRODUCTION
