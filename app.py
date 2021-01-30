@@ -21,15 +21,16 @@ global username
 salt_string = 'A6gX5'
 error_messages = {'db_error': 'Unable to make your entry into our database.'}
 
-def tweet(content: str):
+def tweet(content: str, by=None):
     content = html.escape(content)
-    
+    if not by:
+        by = session['username']
     # Handle POST Request here
     conn = mysql.connect()
     cursor = conn.cursor()
     
     try: 
-        cursor.execute(f"INSERT INTO tweets (username, tweet_content) values ('%s', %s)", (session['username'], content))
+        cursor.execute(f"INSERT INTO tweets (username, tweet_content) values (%s, %s)", (by, content))
         conn.commit()
         success = True
     except Exception as e:
@@ -56,7 +57,7 @@ def get_tweets():
     cursor = conn.cursor()
 
     try:
-        cursor.execute("select * from tweets limit 10")
+        cursor.execute("select * from tweets order by tweet_at desc limit 10")
     except Exception as e:
         print("!!!!   error : ", e)
     finally:
@@ -94,7 +95,7 @@ def hash_password(raw: str):
 def home():
     if request.method=='POST':
         success = tweet(request.form['tweet'])
-        return render_template('home.html', tweet_sucess=success, tweets=get_tweets())
+        return render_template('home.html', username=session['username'], tweet_sucess=success, tweets=get_tweets())
     
     if 'username' in session:
         return render_template('home.html', tweets=get_tweets())
