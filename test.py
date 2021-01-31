@@ -19,3 +19,16 @@ mysql.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
 
+'''
+Remember
+
+PYTHON : 
+- arrow.get(tam).shift(minutes=-330).humanize(arrow.utcnow())
+- Add id to each Tweet
+- Make Follower Page
+
+Javascript: 
+- Date Time
+    var d = new Date();
+    var n = d.getTimezoneOffset();
+'''

@@ -4,10 +4,10 @@ import random
 import html
 import hashlib
 import resources.config as config
-import os
+import os, arrow
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = config.secret_key
 
 app.config['MYSQL_DATABASE_HOST'] = "remotemysql.com"
 app.config['MYSQL_DATABASE_PORT'] = 3306
@@ -18,14 +18,15 @@ mysql = MySQL()
 mysql.init_app(app)
 
 global username
-username=""
-salt_string = 'A6gX5'
+username = ""
+
+salt_string = config.salt_string
 error_messages = {'db_error': 'Unable to make your entry into our database.'}
 
 def tweet(content: str, by=None):
     content = html.escape(content)
     if not by:
-        by = session['username']
+        by = session.get('username')
     # Handle POST Request here
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -53,20 +54,21 @@ def get_name(_username):
     else:
         return False
 
-def get_tweets():
+def get_tweets(_for=None):
+    if not _for: _for = session.get('username')
+    
     conn = mysql.connect()
     cursor = conn.cursor()
     
     #get following
     try:
-        cursor.execute("select following from follows where follower=%s limit 600", (session.get('username')))
+        cursor.execute("select following from follows where follower=%s limit 600", (_for))
     except Exception as e:
         print("!!!!   error : ", e)
 
     # Make tuple out of following
     _raw_res = [str(i[0]) for i in cursor.fetchall()]
     _res = ", ".join(_raw_res)
-    print(_res)
     
     # Get tweets
     try:
@@ -80,7 +82,7 @@ def get_tweets():
     result = [dict(zip(("tweet_id", "username", "tweet_content", "tweet_at"), tweet)) for tweet in cursor.fetchall()]
     for i in result:
         i['tweet_content'] = html.unescape(i['tweet_content'])
-        i['name'] = get_name(i['username'])
+        i['tweet_at'] = arrow.get(i['tweet_at']).shift(minutes=0).humanize(arrow.utcnow())
     return result
 
 def get_his_tweets(uname):
@@ -97,9 +99,44 @@ def get_his_tweets(uname):
     result = [dict(zip(("tweet_id", "tweet_at", "tweet_content"), tweet)) for tweet in cursor.fetchall()]
     for i in result:
         i['tweet_content'] = html.unescape(i['tweet_content'])
-    
+        i['username'] = uname
+        i['tweet_at'] = arrow.get(i['tweet_at']).shift(minutes=0).humanize(arrow.utcnow())
     return result
     
+def get_follower_count(uname=None):
+    if not uname: uname = session.get('username')
+    
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("Select count(follow_id) from follows where following=%s", (uname))
+    except Exception as e: print("!!!!    error :", e) 
+    finally: conn.close()
+    
+    return cursor.fetchone()[0]
+
+def get_his_followers(uname):
+    if not uname: uname = session.get('username')
+    
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("Select follower from follows where following=%s", (uname))
+    except Exception as e: 
+        print("!!!!    error :", e)
+        return
+    finally: conn.close()
+    
+    # Decoding
+    result = cursor.fetchall()
+    for i in result:
+        i = list(i)
+        name = get_name(uname)
+        i.append(name)
+    result = [dict(zip(("username", "name"), follower)) for follower in result]
+    return result
 
 def get_tweet_count(uname):
     conn = mysql.connect()
@@ -116,19 +153,34 @@ def get_tweet_count(uname):
     except: return _res
     
 def get_user_details(uname):
-    _tweets = get_tweet_count(uname)
+    details = {
+        'number_tweets': get_tweet_count(uname),
+        'followers': get_follower_count(uname),
+        'tweets': get_tweets(uname)
+    }
     
+    return details
 
 def check_login(_username, password):
     conn = mysql.connect()
     cursor = conn.cursor()
-    
+
     try: result = cursor.execute(f"SELECT * FROM users WHERE username=%s AND password=%s LIMIT 1;", (_username, password))
     except Exception as e: return e
     finally: conn.close()
     
     return result >= 1
+
+def check_username(_username):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    try: result = cursor.execute(f"SELECT * FROM users WHERE username=%s LIMIT 1;", (_username))
+    except Exception as e: return e
+    finally: conn.close()
     
+    return result == 0
+
 def hash_password(raw: str):
     # Salting the raw password
     temp = ''
@@ -141,6 +193,7 @@ def hash_password(raw: str):
 
 @app.route('/',methods=['GET','POST'])
 def home():
+    
     if request.method=='POST':
         success = tweet(request.form['tweet'])
         return render_template('home.html', username=session.get("username"), tweet_sucess=success, tweets=get_tweets())
@@ -156,8 +209,6 @@ def login(recent=False):
         result = check_login(username, hash_password(request.form.get('password')))
         if result == True:
             session['username'] = username
-            while session['username'] != username:
-                session['username'] = username
             return redirect(url_for('home'))
         elif type(result) == str:
             return render_template("login.html", error=type(result).__name__) 
@@ -180,32 +231,40 @@ def signup(error=None):
         conn = mysql.connect()
         cursor = conn.cursor()
         
-        username, name = request.form['username'].lower(), request.form['name']
+        username, name = request.form['username'].lower(), request.form['name'].title()
+        if not check_username(username):
+            return render_template("signup.html", error="Username already exists, please try another username.")
         try: 
-            result = cursor.execute("INSERT INTO users (username, name, password) values (%s, %s, %s)", (username, name, hash_password(request.form['password'])))
+            result = cursor.execute("INSERT INTO users (username, name, password, email) values (%s, %s, %s, %s)", (username, name, hash_password(request.form['password']), request.form['email']))
             conn.commit()
         except Exception as e:
             return redirect(url_for('signup', error=e))
         finally: conn.close()
+        
         if result >= 1:
             session['username'] = username
             return render_template("home.html")
-        return redirect(url_for('signup', error=error_messages['db_error']))
+        return render_template("signup.html", error=error_messages['db_error'])
         
     return render_template("signup.html", error=error)
 
-@app.route('/users/<uname>')
-def get_profile(uname):
-    _res = get_user_details()
-    return render_template('profile.html', data=_res)
+@app.route('/user')
+@app.route('/user/<uname>')
+def get_profile(uname=None):
+    if not uname: uname = session.get('username')
+    
+    _res = get_user_details(uname)
+    return render_template('profile.html', data=_res, username=uname)
 
-@app.route("/profile")
-def func():
-    return render_template('profile.html')
+@app.route("/user/followers")
+@app.route('/user/<uname>/followers')
+def get_profile_followers(uname):
+    _res = get_user_details(uname)
+    return render_template('profile.html', data=_res, username=uname)
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('404.html', pic=pic), 404
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':

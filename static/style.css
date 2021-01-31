@@ -29,3 +29,15 @@ textarea {
 .form-paded{
     padding: 0 0 10px;
 }
+.body {
+    padding-top: 80px;
+}
+
+@media (min-width: 20px) and (max-width: 1000px) {
+    .body {
+        padding-top: 80px;
+    }
+    .collapse {
+        display: none !important;
+    }
+}

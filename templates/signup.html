@@ -19,16 +19,16 @@ Signup
                     <label class="form-label" for="username">Username</label>
                     <div class="input-group">
                         <div class="input-group-text">@</div>
-                        <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" pattern="[A-Za-z0-9]*" title="Must start with a letter, contain letters and numbers, and should be of length 4 to 30" required autofocus maxlength="30" minlength="4">
+                        <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" pattern="[A-Za-z0-9_.]*" title="Must start with a letter, contain letters and numbers, and should be of length 4 to 30" required autofocus maxlength="30" minlength="4">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="name">Full Name</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="John Doe (optional)" required minlength="2" maxlength="30" pattern="[A-Za-z]*" title="Should contain only Alphabets.">
+                    <input type="text" class="form-control" name="name" id="name" placeholder="John Doe (optional)" required minlength="2" maxlength="30" pattern="[A-Za-z ]*" title="Should contain only Alphabets.">
                 </div>
                 <div class="col-12">
                     <label for="email" class="form-label">E-mail</label>
-                    <input type="email" class="form-control" id="email" placeholder="example@xyz.com" required>
+                    <input type="email" class="form-control" id="email" placeholder="example@xyz.com" name="email" required>
                 </div>
                 <div class="col-md-6">
                     <label for="password" class="form-label">Password</label>

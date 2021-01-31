@@ -1,0 +1,30 @@
+{% extends "home_base.html" %}
+
+{% block title %}
+@{{ username }} on
+{% endblock %}
+
+{% block body %}
+
+<div class="body container gap-3">
+    <div>
+        {% for tweet in tweets %}
+            <div class="card shadow">
+            <div class="card-header">
+                <a href="{{ tweet['username'] }}"></a>  By {% if tweet['name'] %}
+                    {{ ' ' + tweet['name'] }}
+                {% endif %}  @{{tweet['username']}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-text"></h5>
+                <p class="card-title">{{tweet['tweet_content']}}</p>
+            </div>
+            <div class="card-footer text-muted">
+                tweeted {{ tweet['tweet_at'] }}
+            </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
