@@ -45,6 +45,9 @@ def tweet(content: str, by=None):
     
     return success
 
+def humanize(time):
+    return arrow.get(time).shift(minutes=0).humanize(arrow.utcnow())
+
 def get_name(_username):
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -82,8 +85,27 @@ def get_tweets(_for=None):
     result = [dict(zip(("tweet_id", "username", "tweet_content", "tweet_at"), tweet)) for tweet in cursor.fetchall()]
     for i in result:
         i['tweet_content'] = html.unescape(i['tweet_content'])
-        i['tweet_at'] = arrow.get(i['tweet_at']).shift(minutes=0).humanize(arrow.utcnow())
+        i['tweet_at'] = humanize(i['tweet_at'])
     return result
+
+def get_profiles():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    
+    try:
+        res = cursor.execute('Select username, name, created from users limit 10')
+    except Exception as e:
+        print("!!!     error:", e)
+    finally:
+        conn.close()
+    
+    result = [dict(zip(("username", "name", "created_at"), tweet)) for tweet in cursor.fetchall()]
+    for i in result:
+        i['created_at'] = humanize(i['created_at'])
+        i['tweets_count'] = get_tweet_count(i['username'])
+    
+    return result
+        
 
 def get_his_tweets(uname):
     conn = mysql.connect()
@@ -151,12 +173,17 @@ def get_tweet_count(uname):
     _res = cursor.fetchone()[0]
     try: return int(_res)
     except: return _res
-    
+
+def explore_users(data):
+    pass
+
+
 def get_user_details(uname):
     details = {
+        'name': get_name(uname),
         'number_tweets': get_tweet_count(uname),
         'followers': get_follower_count(uname),
-        'tweets': get_tweets(uname)
+        'tweets': get_his_tweets(uname)
     }
     
     return details
@@ -203,7 +230,7 @@ def home():
     return redirect(url_for('login'))
 
 @app.route("/login", methods=["POST", "GET"])
-def login(recent=False):
+def login():
     if request.method == 'POST':
         username = request.form.get('username').lower()
         result = check_login(username, hash_password(request.form.get('password')))
@@ -216,12 +243,12 @@ def login(recent=False):
             return render_template("login.html", failed = True)
     if 'username' in session:
         return redirect(url_for('home'))
-    return render_template("login.html", recent=recent)
+    return render_template("login.html")
 
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return redirect(url_for('login', recent=True))
+    return redirect(url_for('login'))
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup(error=None):
@@ -243,7 +270,7 @@ def signup(error=None):
         
         if result >= 1:
             session['username'] = username
-            return render_template("home.html")
+            return render_template("home.html", username=session.get("username"))
         return render_template("signup.html", error=error_messages['db_error'])
         
     return render_template("signup.html", error=error)
@@ -262,9 +289,14 @@ def get_profile_followers(uname):
     _res = get_user_details(uname)
     return render_template('profile.html', data=_res, username=uname)
 
+@app.route("/explore")
+def explore():
+    
+    return render_template('explore.html', data=get_profiles(), username=session.get("username"))
+
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('404.html'), 404
+    return render_template('404.html', username=session.get("username")), 404
 
 
 if __name__ == '__main__':

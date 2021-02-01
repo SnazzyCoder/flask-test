@@ -8,7 +8,7 @@
 
 <div class="body container gap-3">
     <div>
-        {% for tweet in tweets %}
+        {% for tweet in data['tweets'] %}
             <div class="card shadow">
             <div class="card-header">
                 <a href="{{ tweet['username'] }}"></a>  By {% if tweet['name'] %}

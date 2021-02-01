@@ -40,9 +40,9 @@
   {% for tweet in tweets %}
     <div class="card shadow" id="{{ tweet['tweet_id'] }}">
       <div class="card-header">
-        <a href="/user/{{ tweet['username'] }}"></a>  By {% if tweet['name'] %}
+        By {% if tweet['name'] %}
             {{ ' ' + tweet['name'] }}
-          {% endif %}  @{{tweet['username']}}
+          {% endif %}  <a href="/user/{{ tweet['username'] }}">@{{tweet['username']}}</a>
       </div>
       <div class="card-body">
         <h5 class="card-text"></h5>

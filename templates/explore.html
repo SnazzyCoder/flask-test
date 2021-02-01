@@ -1,0 +1,29 @@
+{% extends "home_base.html" %}
+
+{% block title %}
+Explore Accounts
+{% endblock %}
+
+{% block body %}
+
+
+<div class="body container">
+    {% for profile in data %}
+    <div class="card shadow" id="{{ profile['username'] }}">
+        <div class="card-body">
+          <h5 class="card-text">
+              {% if profile['name'] %}
+                {{ profile['name'] }}
+              {% endif %}
+          </h5>
+          <p class="card-title"><a href="/user/{{ profile['username'] }}">@{{ profile['username'] }}</a></p>
+        </div>
+        <div class="card-footer text-muted">
+          Joined {{ profile['created_at'] }}, Has made {{ profile['tweets_count'] }} tweets
+        </div>
+      </div>
+      {% endfor %}
+</div>
+
+
+{% endblock %}

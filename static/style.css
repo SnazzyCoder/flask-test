@@ -11,7 +11,7 @@ body{
     background-attachment: fixed;
 }
 .main{
-    max-width: 400px;
+    max-width: 650px;
     margin: 0 auto;
     padding: 0;
 }
@@ -33,11 +33,6 @@ textarea {
     padding-top: 80px;
 }
 
-@media (min-width: 20px) and (max-width: 1000px) {
-    .body {
-        padding-top: 80px;
-    }
-    .collapse {
-        display: none !important;
-    }
+.body > *{
+    margin: 10px 0;
 }
