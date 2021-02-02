@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, session
+from flask import Flask, redirect, url_for, render_template, request, session, Markup
 from flaskext.mysql import MySQL
 import random
 import html
@@ -23,6 +23,17 @@ username = ""
 salt_string = config.salt_string
 error_messages = {'db_error': 'Unable to make your entry into our database.'}
 
+
+def return_single(cmd):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    
+    try: cursor.execute(cmd)
+    except Exception as e: print("!!!    error:", e)
+    finally: conn.close()
+    
+    return cursor.fetchone()[0]
+    
 def tweet(content: str, by=None):
     content = html.escape(content)
     if not by:
@@ -63,19 +74,9 @@ def get_tweets(_for=None):
     conn = mysql.connect()
     cursor = conn.cursor()
     
-    #get following
-    try:
-        cursor.execute("select following from follows where follower=%s limit 600", (_for))
-    except Exception as e:
-        print("!!!!   error : ", e)
-
-    # Make tuple out of following
-    _raw_res = [str(i[0]) for i in cursor.fetchall()]
-    _res = ", ".join(_raw_res)
-    
     # Get tweets
     try:
-        cursor.execute("select * from tweets where username in (%s) order by tweet_at desc limit 20", (_res))
+        cursor.execute("select t.tweet_id, t.username, t.tweet_content, t.tweet_at from tweets as t INNER JOIN (select following from follows where follower=%s limit 600) as f on t.username=f.following order by tweet_at desc limit 20", (_for))
     except Exception as e:
         print("!!!!   error : ", e)
     finally:
@@ -177,12 +178,17 @@ def get_tweet_count(uname):
 def explore_users(data):
     pass
 
+def get_created_at(uname=None):
+    if not uname: uname = session.get('username')
+    return return_single(f"select created from users where username='{uname}'")
 
 def get_user_details(uname):
     details = {
+        'username': uname,
         'name': get_name(uname),
         'number_tweets': get_tweet_count(uname),
         'followers': get_follower_count(uname),
+        'created_at': humanize(get_created_at(uname)),
         'tweets': get_his_tweets(uname)
     }
     
@@ -220,14 +226,15 @@ def hash_password(raw: str):
 
 @app.route('/',methods=['GET','POST'])
 def home():
-    
+    if 'username' not in session:
+        return redirect(url_for('login'))
     if request.method=='POST':
+        app.jinja_env.globals.update(username=session.get('username'))
         success = tweet(request.form['tweet'])
-        return render_template('home.html', username=session.get("username"), tweet_sucess=success, tweets=get_tweets())
+        return render_template('home.html', tweet_sucess=success, tweets=get_tweets())
     
-    if 'username' in session:
-        return render_template('home.html', tweets=get_tweets(), username=session.get('username'))
-    return redirect(url_for('login'))
+    app.jinja_env.globals.update(username=session.get('username'))
+    return render_template('home.html', tweets=get_tweets())
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -236,6 +243,7 @@ def login():
         result = check_login(username, hash_password(request.form.get('password')))
         if result == True:
             session['username'] = username
+            app.jinja_env.globals.update(username=username)
             return redirect(url_for('home'))
         elif type(result) == str:
             return render_template("login.html", error=type(result).__name__) 
@@ -260,7 +268,7 @@ def signup(error=None):
         
         username, name = request.form['username'].lower(), request.form['name'].title()
         if not check_username(username):
-            return render_template("signup.html", error="Username already exists, please try another username.")
+            return render_template("signup.html", error=Markup("Username already exists, login <a href='/login'>here</a>. EXISTING_USERNAME_ERROR"))
         try: 
             result = cursor.execute("INSERT INTO users (username, name, password, email) values (%s, %s, %s, %s)", (username, name, hash_password(request.form['password']), request.form['email']))
             conn.commit()
@@ -270,7 +278,8 @@ def signup(error=None):
         
         if result >= 1:
             session['username'] = username
-            return render_template("home.html", username=session.get("username"))
+            app.jinja_env.globals.update(username=username)
+            return render_template("home.html")
         return render_template("signup.html", error=error_messages['db_error'])
         
     return render_template("signup.html", error=error)
@@ -278,28 +287,34 @@ def signup(error=None):
 @app.route('/user')
 @app.route('/user/<uname>')
 def get_profile(uname=None):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
     if not uname: uname = session.get('username')
     
     _res = get_user_details(uname)
-    return render_template('profile.html', data=_res, username=uname)
+    return render_template('profile.html', data=_res)
 
 @app.route("/user/followers")
 @app.route('/user/<uname>/followers')
 def get_profile_followers(uname):
+    if 'username' not in session:
+        return redirect(url_for('login'))
     _res = get_user_details(uname)
-    return render_template('profile.html', data=_res, username=uname)
+    return render_template('profile.html', data=_res)
 
 @app.route("/explore")
 def explore():
-    
-    return render_template('explore.html', data=get_profiles(), username=session.get("username"))
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('explore.html', data=get_profiles())
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('404.html', username=session.get("username")), 404
+    return render_template('404.html'), 404
 
 
 if __name__ == '__main__':
     # DEBUG is SET to TRUE. CHANGE FOR PRODUCTION
-    app.run(port=5000, debug=True)
+    app.run(port=5000)
     # pass

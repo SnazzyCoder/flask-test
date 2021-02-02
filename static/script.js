@@ -1,10 +1,12 @@
-var check = function () {
-    if (document.getElementById('password').value ==
-        document.getElementById('confirm_password').value) {
-        document.getElementById('message').style.color = 'green';
-        document.getElementById('message').innerHTML = 'matching';
-    } else {
-        document.getElementById('message').style.color = 'red';
-        document.getElementById('message').innerHTML = 'not matching';
-    }
-}
+console.log('Hey Guys!')
+
+$(document).ready(function() {
+    if ($('.nav') != null) {
+        var end = $(".body").offset().top;
+        var viewEnd = $(window).scrollTop() + $(window).height();
+        var distance = end - viewEnd;
+        if (distance < 300){
+            console.log('Hey Guys, Its loading');
+        }
+    }   
+})
