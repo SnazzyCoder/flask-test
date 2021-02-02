@@ -6,25 +6,24 @@
 
 {% block body %}
 
-<div class="body container gap-3">
-    <div>
-        <!-- User Info -->
-        <div class="card shadow" id="{{ data['username'] }}">
-            <div class="card-body">
-              <h5 class="card-text">
-                  {% if data['name'] %}
-                    {{ data['name'] }}
-                  {% endif %}
-              </h5>
-              <p class="card-title"><a href="/user/{{ data['username'] }}">@{{ data['username'] }}</a></p>
-            </div>
-            <div class="card-content">
-              Joined {{ data['created_at'] }}, Has made {{ data['tweets_count'] }} tweets
-            </div>
+<div class="body container">
+    <!-- User Info -->
+    <div class="card shadow" id="{{ data['username'] }}">
+        <div class="card-body">
+            <h5 class="card-text">
+                {% if data['name'] %}
+                {{ data['name'] }}
+                {% endif %}
+            </h5>
+            <p class="card-title"><a href="/user/{{ data['username'] }}">@{{ data['username'] }}</a></p>
         </div>
-        <!-- User Tweets -->
-        {% for tweet in data['tweets'] %}
-            <div class="card shadow">
+        <div class="card-content card-footer">
+            Joined {{ data['created_at'] }}, Has made {{ data['tweets_count'] }} tweets
+        </div>
+    </div>
+    <!-- User Tweets -->
+    {% for tweet in data['tweets'] %}
+        <div class="card shadow">
             <div class="card-header">
                 <a href="{{ tweet['username'] }}"></a>  By {% if tweet['name'] %}
                     {{ ' ' + tweet['name'] }}
@@ -37,9 +36,8 @@
             <div class="card-footer text-muted">
                 tweeted {{ tweet['tweet_at'] }}
             </div>
-            </div>
-        {% endfor %}
-    </div>
+        </div>
+    {% endfor %}
 </div>
 
 {% endblock %}
