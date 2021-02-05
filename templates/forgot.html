@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}
+Recover Account
+{% endblock %}
+
+{% block body %}
+
+<div class="container vertical">
+    
+    <div>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+        {% endif %}
+    
+        <div class="row card card-body shadow login-form-1">
+            <h4 class="h4 text-center">Recover Password for Twitter 4 Men!</h4>
+            <form method="POST" class="row g-3 form-paded">
+
+                {% if not step2 %}
+                    <div class="col-12">
+                        <label class="form-label" for="username">Username</label>
+                        <div class="input-group">
+                            <div class="input-group-text">@</div>
+                            <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" pattern="[A-Za-z0-9_.]*" title="Must start with a letter, contain letters and numbers, and should be of length 4 to 30" autofocus required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Code!</button>
+                {% endif %}
+
+                {% if step2 %}
+                    <div class="col-12">
+                        <p>We've sent a numeric 6-digit code to <br /><strong>{{ to }}</strong>. <a href="/forgot" class="link-primary"></a></p>
+                        <label for="code" class="form-label">Code</label>
+                        <input type="code" class="form-control" id="code" name="code" placeholder="123456" pattern="[0-9]*" tile="Must contain exaclty 6 Numeric digits" maxlength="6" minlength="6" autofocus required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Verify</button>
+                {% endif %}
+
+            </form>
+            <p>New here? <a href="/signup" class="link-primary">Signup!</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

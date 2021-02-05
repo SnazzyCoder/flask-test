@@ -31,16 +31,17 @@ Login
                     <label class="form-label" for="username">Username</label>
                     <div class="input-group">
                         <div class="input-group-text">@</div>
-                        <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" required>
+                        <input type="text" class="form-control" name="username" id="username" placeholder="realjohndoe" pattern="{A-Za-z0-9}" minlength="4" maxlength="30" autofocus required>
                     </div>
                 </div>
                 <div class="col-12">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="password" maxlength="300" minlength="8" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Sign in!</button>
             </form>
-            <p>New here? <a href="/signup" class="link-primary">Signup!</a></p>
+            <p>New here? <a href="/signup" class="link-primary">Signup!</a><br />
+            <a href="/forgot" class="link-primary">Forgot Password?</a></p>
         </div>
     </div>
 </div>

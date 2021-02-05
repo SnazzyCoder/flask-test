@@ -1,10 +1,10 @@
 from flask import Flask, redirect, url_for, render_template, request, session, Markup
 from flaskext.mysql import MySQL
-import random
 import html
 import hashlib
 import resources.config as config
-import os, arrow
+from resources.mailing import send_mail
+import arrow
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -33,7 +33,10 @@ def return_single(cmd):
     finally: conn.close()
     
     return cursor.fetchone()[0]
-    
+
+def encode_mail(mail):
+    return "".join((mail.split('@')[0][:3], '*' * 7, '@',mail.split('@')[1])) 
+
 def tweet(content: str, by=None):
     content = html.escape(content)
     if not by:
@@ -88,6 +91,18 @@ def get_tweets(_for=None):
         i['tweet_content'] = html.unescape(i['tweet_content'])
         i['tweet_at'] = humanize(i['tweet_at'])
     return result
+
+def get_email(_username):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute('SELECT email from users where username=%s limit 1', (_username))
+    except Exception as e: print("!!!    error:", e)
+    finally: conn.close()
+    
+    return cursor.fetchone()[0]
+
 
 def get_profiles():
     conn = mysql.connect()
@@ -204,7 +219,7 @@ def check_login(_username, password):
     
     return result >= 1
 
-def check_username(_username):
+def valid_username(_username):
     conn = mysql.connect()
     cursor = conn.cursor()
 
@@ -267,7 +282,7 @@ def signup(error=None):
         cursor = conn.cursor()
         
         username, name = request.form['username'].lower(), request.form['name'].title()
-        if not check_username(username):
+        if not valid_username(username):
             return render_template("signup.html", error=Markup("Username already exists, login <a href='/login'>here</a>. EXISTING_USERNAME_ERROR"))
         try: 
             result = cursor.execute("INSERT INTO users (username, name, password, email) values (%s, %s, %s, %s)", (username, name, hash_password(request.form['password']), request.form['email']))
@@ -283,6 +298,48 @@ def signup(error=None):
         return render_template("signup.html", error=error_messages['db_error'])
         
     return render_template("signup.html", error=error)
+
+@app.route('/forgot', methods=['POST', "GET"])
+def forgot():
+    if request.method == 'POST':
+        # Check if Step1
+        onstep1 = False
+        try: 
+            global tusername
+            tusername = request.form.get('username').lower()
+            onstep1 = True
+        except:
+            try:
+                get_code = request.form.get('code')
+                onstep2 = True
+            except:
+                print("!!!    error: Double Exception error!")
+                return render_template('forgot.html', error='Double exception error')
+                
+        if onstep1:
+            if valid_username(tusername):
+                return render_template('forgot.html', error="The username does not exist. Please check.")
+            global email
+            email = get_email(tusername)
+            global code
+            code = send_mail(email)
+            return render_template('forgot.html', step2=True, to=encode_mail(email))
+            
+        elif onstep2:
+            if int(get_code) == code:
+                session['username'] = tusername
+                return redirect(url_for('change_password'))
+            else:
+                return render_template('forgot.html', step2=True, to=encode_mail(email), error="The code you entered was invalid. Retry")
+        return render_template('forgot.html', error="The function did not return a valid html page, i.e. no view function was executed", step1=True)
+        
+    # Basic checking
+    if 'username' in session:
+        return redirect(url_for('home'))
+    
+    # Code here
+    return render_template('forgot.html', step1=True)
+    
 
 @app.route('/user')
 @app.route('/user/<uname>')
@@ -308,6 +365,13 @@ def explore():
     if 'username' not in session:
         return redirect(url_for('login'))
     return render_template('explore.html', data=get_profiles())
+
+@app.route("/change_password")
+def change_password():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    return render_template('change_password.html', verify=False)
 
 @app.errorhandler(404)
 def not_found_error(error):

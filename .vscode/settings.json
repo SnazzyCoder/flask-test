@@ -1,3 +1,18 @@
 {
-    "python.pythonPath": "C:\\Program Files\\Python39\\python.exe"
+    "python.pythonPath": "C:\\Program Files\\Python39\\python.exe",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "remotemysql.com",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "Twitter-4-Men",
+            "database": "ggAVIcwN9H",
+            "username": "ggAVIcwN9H",
+            "password": "dEl1QjNO73"
+        }
+    ]
 }
