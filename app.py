@@ -79,7 +79,7 @@ def get_tweets(_for=None):
     
     # Get tweets
     try:
-        cursor.execute("select t.tweet_id, t.username, t.tweet_content, t.tweet_at from tweets as t INNER JOIN (select following from follows where follower=%s limit 600) as f on t.username=f.following order by tweet_at desc limit 20", (_for))
+        cursor.execute("select t.tweet_id, t.username, t.tweet_content, t.tweet_at from tweets as t INNER JOIN (select following from follows where follower=%s limit 600) as f on t.username=f.following order by tweet_at desc limit 100", (_for))
     except Exception as e:
         print("!!!!   error : ", e)
     finally:
@@ -109,7 +109,7 @@ def get_profiles():
     cursor = conn.cursor()
     
     try:
-        res = cursor.execute('Select username, name, created from users limit 10')
+        res = cursor.execute('Select username, name, created from users limit 100')
     except Exception as e:
         print("!!!     error:", e)
     finally:
@@ -127,7 +127,7 @@ def get_his_tweets(uname):
     conn = mysql.connect()
     cursor = conn.cursor()
     try:
-        cursor.execute("select tweet_id, tweet_at, tweet_content from tweets where username=%s order by tweet_at desc limit 20", (uname))
+        cursor.execute("select tweet_id, tweet_at, tweet_content from tweets where username=%s order by tweet_at desc limit 100", (uname))
     except Exception as e:
         print("!!!!   error : ", e)
     finally:
@@ -325,7 +325,7 @@ def forgot():
             code = send_mail(email)
             return render_template('forgot.html', step2=True, to=encode_mail(email))
             
-        elif onstep2:
+        elif onstep2 and code:
             if int(get_code) == code:
                 session['username'] = tusername
                 return redirect(url_for('change_password'))
@@ -371,6 +371,7 @@ def change_password():
     if 'username' not in session:
         return redirect(url_for('login'))
     
+    app.jinja_env.globals.update(username=session.get('username'))
     return render_template('change_password.html', verify=False)
 
 @app.errorhandler(404)
