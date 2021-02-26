@@ -10,15 +10,26 @@
     <!-- User Info -->
     <div class="card shadow" id="{{ data['username'] }}">
         <div class="card-body">
-            <h5 class="card-text">
-                {% if data['name'] %}
-                {{ data['name'] }}
-                {% endif %}
-            </h5>
-            <p class="card-title"><a href="/user/{{ data['username'] }}">@{{ data['username'] }}</a></p>
+            <div style="display: flex; justify-content: space-between;">
+                <h5 class="card-text">
+                    {% if data['name'] %}
+                    {{ data['name'] }}
+                    {% endif %}
+                </h5>
+                <form method="POST">
+                    {% if following is None %}
+                        <!-- No follow button since it's your id -->
+                    {% elif following == False %}
+                        <button class="btn btn-primary" type="submit">Follow</button>
+                    {% elif following == True %}
+                        <button class="btn btn-link" type="submit">unFollow</button>
+                    {% endif %}
+                </form>
+            </div>
+            <p><a href="/user/{{ data['username'] }}">@{{ data['username'] }}</a></p>
         </div>
         <div class="card-content card-footer">
-            Joined {{ data['created_at'] }}, Has made {{ data['tweets_count'] }} tweets
+            Joined {{ data['created_at'] }}, Has made {{ data['number_tweets'] }} tweets. Has {{ data['followers'] }} Follwers
         </div>
     </div>
     <!-- User Tweets -->

@@ -18,7 +18,9 @@ mysql = MySQL()
 mysql.init_app(app)
 
 global username
+global verify
 username = ""
+verify = True
 
 salt_string = config.salt_string
 error_messages = {'db_error': 'Unable to make your entry into our database.'}
@@ -71,6 +73,23 @@ def get_name(_username):
     else:
         return False
 
+def follow_user(following, follower=None):
+    if not follower: follower = session.get('username')
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    try:
+        _res = cursor.execute('INSERT INTO follows (follower, following) values (%s, %s)', (follower, following))
+    except Exception as e: print("!!!    error:", e)
+    finally: conn.close
+
+    return _res == 1
+
+def follows_user(following, follower=None):
+    if not follower: follower = session.get('username')
+
+    return return_single(f'SELECT count(*) from follows where follower="{follower}" and following="{following}"') >= 1
+
 def get_tweets(_for=None):
     if not _for: _for = session.get('username')
     
@@ -119,9 +138,27 @@ def get_profiles():
     for i in result:
         i['created_at'] = humanize(i['created_at'])
         i['tweets_count'] = get_tweet_count(i['username'])
+        i['followers'] = get_follower_count(i['username'])
     
     return result
-        
+
+def update_password(pwd, uname=None):
+
+    pwd = hash_password(pwd)
+
+    conn = mysql.connect()
+    cursor = conn.cursor()
+
+    try:
+        res = cursor.execute('update users set password=%s where username=%s limit 1;', (pwd, uname))
+        conn.commit()
+    except Exception as e:
+        print("!!!     error:", e)
+    finally:
+        conn.close()
+
+    return res == 1
+
 
 def get_his_tweets(uname):
     conn = mysql.connect()
@@ -169,10 +206,9 @@ def get_his_followers(uname):
     
     # Decoding
     result = cursor.fetchall()
-    for i in result:
-        i = list(i)
-        name = get_name(uname)
-        i.append(name)
+    result = [list(i) for i in result]
+    result = [i.append(get_name(i[0])) or i for i in result]
+    result
     result = [dict(zip(("username", "name"), follower)) for follower in result]
     return result
 
@@ -328,6 +364,8 @@ def forgot():
         elif onstep2 and code:
             if int(get_code) == code:
                 session['username'] = tusername
+                global verify
+                verify = False
                 return redirect(url_for('change_password'))
             else:
                 return render_template('forgot.html', step2=True, to=encode_mail(email), error="The code you entered was invalid. Retry")
@@ -341,24 +379,40 @@ def forgot():
     return render_template('forgot.html', step1=True)
     
 
+@app.route('/user/<uname>', methods=['POST', 'GET'])
+def profile(uname=None):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        follow_user(uname)
+        _res = get_user_details(uname)
+        return render_template('profile.html', data=_res, following=follows_user(uname))
+
+    if not uname: uname = session.get('username')
+    
+    _res = get_user_details(uname)
+    return render_template('profile.html', data=_res, following=follows_user(uname))
+
 @app.route('/user')
-@app.route('/user/<uname>')
-def get_profile(uname=None):
+def my_profile():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    uname = session.get('username')
+    _res = get_user_details(uname)
+    return render_template('profile.html', data=_res, following=None)
+
+@app.route("/user/followers")
+@app.route('/user/<uname>/followers')
+def get_profile_followers(uname=None):
     if 'username' not in session:
         return redirect(url_for('login'))
     
     if not uname: uname = session.get('username')
-    
-    _res = get_user_details(uname)
-    return render_template('profile.html', data=_res)
 
-@app.route("/user/followers")
-@app.route('/user/<uname>/followers')
-def get_profile_followers(uname):
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    _res = get_user_details(uname)
-    return render_template('profile.html', data=_res)
+    _res = [dict(zip(('username', 'followers', 'follower_count', )))]
+    return render_template('followers.html', data=_res)
 
 @app.route("/explore")
 def explore():
@@ -366,13 +420,35 @@ def explore():
         return redirect(url_for('login'))
     return render_template('explore.html', data=get_profiles())
 
-@app.route("/change_password")
+@app.route("/change_password", methods=["POST", "GET"])
 def change_password():
     if 'username' not in session:
         return redirect(url_for('login'))
+
+    if request.method == "POST":
+        if not verify:
+            _pass = request.get('password')
+            chpwd = update_password(_pass, session.get('username'))
+            if chpwd: 
+                global verify
+                verify = True
+                return render_template('change_password.html', success=True)
+            else:
+                return render_template('change_password.html', error="Password was not updated. Retry in a moment")
+        else:
+            _pass = request.get('password')
+            if check_login(session.get('username'), _pass):
+                verify = False
+                return render_template('change_password.html')
+            else:
+                return render_template('change_password.html', step1=True, error='The password was wrong. Please retry.')
+
+    if not verify:
+        app.jinja_env.globals.update(username=session.get('username'))
+        return render_template('change_password.html')
+
+    return render_template('change_password.html', step1=True)
     
-    app.jinja_env.globals.update(username=session.get('username'))
-    return render_template('change_password.html', verify=False)
 
 @app.errorhandler(404)
 def not_found_error(error):

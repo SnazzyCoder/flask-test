@@ -51,13 +51,14 @@ Signup
     </div>
 </div>
 <script>
-    var password = document.getElementById("password"),
-    confirm_password = document.getElementById("confirm-password");
 
+    var password = document.getElementById("password"),
+    var confirm_password = document.getElementById("confirm-password");
+    
     function reveal(){
-        console.log("Hey Guys")
-        password.type="text"
-        confirm_password.type="text"
+        console.log("Hey Guys");
+        document.getElementById('password').type="text";
+        document.getElementById('confirm_password').type="text";
     }
 
     function validatePassword() {

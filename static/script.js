@@ -1,4 +1,4 @@
-console.log('Hey Guys!')
+/* console.log('Hey Guys!')
 
 $(document).ready(function() {
     if ($('.nav') != null) {
@@ -9,4 +9,4 @@ $(document).ready(function() {
             console.log('Hey Guys, Its loading');
         }
     }   
-})
+}) */
