@@ -22,7 +22,15 @@
   {% elif tweet_sucess==None %}
   {% endif %}
   
-  <a class="btn btn-primary" data-bs-toggle="collapse" href="#tweet-card" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Tweet Something</a>
+  <div class="flex between">
+    <a class="btn btn-primary" data-bs-toggle="collapse" href="#tweet-card" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Tweet Something</a>
+    <div>
+      <ul class="nav nav-tabs">
+        <li class="nav-tabs"><a href="?all=true" class="nav-link {% if all %}active{% endif %}">All Tweets</a></li>
+        <li class="nav-item"><a href="/" class="nav-link {% if not all %}active{% endif %}">From Follows</a></li>
+      </ul>
+    </div>
+  </div>
   <div class="tweet-card collapse" id="tweet-card">
     <div class="card card-body">
       <h4 class="h4">Tweet Something</h4>
@@ -58,7 +66,7 @@
     <div class="card shadow" id="notfound" style="text-align: center; padding: 30px; box-sizing: border-box; border-radius: 20px;">
       <img src="/static/images/followmore.svg" alt="Follow more users">
       <h2>Follow Some Users</h2>
-      <p>Twitter-4-Men becomes more enjoyable when you follow people you're interested in. Go to the 'Explore' tab to find people to follow.</p>
+      <p>Twitter-4-Men becomes more enjoyable when you follow people you're interested in. Go to the 'Explore' tab to find people to follow, or select the 'All' </p>
     </div>
   {% endif %}
   <div class="end">

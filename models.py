@@ -102,7 +102,7 @@ def unfollow(following, follower=None):
 
     return _res == 1
 
-def get_tweets(_for=None):
+def get_tweets(_for=None, followers_only=True):
     if not _for: _for = session.get('username')
     
     conn = mysql.connect()
@@ -110,7 +110,11 @@ def get_tweets(_for=None):
     
     # Get tweets
     try:
-        cursor.execute("select t.tweet_id, t.username, t.tweet_content, t.tweet_at from tweets as t INNER JOIN (select following from follows where follower=%s limit 600) as f on t.username=f.following order by tweet_at desc limit 600", (_for))
+        if followers_only:
+            cursor.execute(f"select t.tweet_id, t.username, t.tweet_content, t.tweet_at from tweets as t INNER JOIN (select following from follows where follower=%s limit {config.limit}) as f on t.username=f.following order by tweet_at desc limit {config.limit}", (_for))
+            print('i executed', followers_only)
+        else:
+            cursor.execute(f"select tweet_id, username, tweet_content, tweet_at from tweets order by tweet_at desc limit {config.limit}")
     except Exception as e:
         print("!!!!   error : ", e)
     finally:
@@ -140,7 +144,7 @@ def get_profiles():
     cursor = conn.cursor()
     
     try:
-        res = cursor.execute('Select username, name, created from users limit 600')
+        res = cursor.execute(f'Select username, name, created from users limit {config.limit}')
     except Exception as e:
         print("!!!     error:", e)
     finally:
@@ -176,7 +180,7 @@ def get_his_tweets(uname):
     conn = mysql.connect()
     cursor = conn.cursor()
     try:
-        cursor.execute("select tweet_id, tweet_at, tweet_content from tweets where username=%s order by tweet_at desc limit 600", (uname))
+        cursor.execute(f"select tweet_id, tweet_at, tweet_content from tweets where username=%s order by tweet_at desc limit {config.limit}", (uname))
     except Exception as e:
         print("!!!!   error : ", e)
     finally:

@@ -1,3 +1,5 @@
 db_pass = "dEl1QjNO73"
 salt_string = 'A6gX5'
 secret_key = b'\x96\xa9\xf5\xcd\x04\xf7\xa9"\xc9Ae\xe1\x83\x1b\xe3\x80\xe0x\xd9}\xfb\xc0E\xe2'
+version = "1.0.0"
+limit = 1000

@@ -14,15 +14,18 @@ error_messages = {'db_error': 'Unable to make your entry into our database.'}
 # App Starts
 @app.route('/',methods=['GET','POST'])
 def home():
+    alll = request.args.get('all') == 'true'
+
     if 'username' not in session:
         return redirect(url_for('login'))
     if request.method=='POST':
         app.jinja_env.globals.update(username=session.get('username'))
         success = tweet(request.form['tweet'])
-        return render_template('home.html', tweet_sucess=success, tweets=get_tweets())
+        return render_template('home.html', tweet_sucess=success, tweets=get_tweets(followers_only=False if alll else True), all=alll)
     
     app.jinja_env.globals.update(username=session.get('username'))
-    return render_template('home.html', tweets=get_tweets())
+    return render_template('home.html', tweets=get_tweets(followers_only=False if alll else True), all=alll)
+
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -121,11 +124,13 @@ def profile(uname=None):
     if 'username' not in session:
         return redirect(url_for('login'))
     
+    # Handles Follow
     if request.method == 'POST':
         follow_user(uname)
         _res = get_user_details(uname)
         return render_template('profile.html', data=_res, following=follows_user(uname))
 
+    # Returns self id if not defined
     if not uname: uname = session.get('username')
     
     _res = get_user_details(uname)
@@ -192,6 +197,9 @@ def change_password():
 
     return render_template('change_password.html', step1=True)
     
+@app.route("/version")
+def version():
+    return render_template("version.html", version=config.version)
 
 @app.errorhandler(404)
 def not_found_error(error):

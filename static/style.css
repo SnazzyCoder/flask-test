@@ -37,3 +37,16 @@ textarea {
 .body > *{
     margin: 10px 0;
 }
+
+.right{
+    float: right;
+}
+.flex{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-evenly;
+    clear: both;
+}
+.flex.between{
+    justify-content: space-between;
+}
