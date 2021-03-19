@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Program Files\\Python39\\python.exe",
+    "python.pythonPath": "/opt/homebrew/opt/python@3.9/bin/python3.9",
     "sqltools.connections": [
         {
             "mysqlOptions": {

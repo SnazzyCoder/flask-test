@@ -35,6 +35,9 @@
       </form>
     </div>
   </div>
+  {% if tweets %}
+    <h1 class="h1">Recent Tweets</h1>
+  {% endif %}
   {% for tweet in tweets %}
     <div class="card shadow" id="{{ tweet['tweet_id'] }}">
       <div class="card-header">
@@ -51,6 +54,13 @@
       </div>
     </div>
   {% endfor %}
+  {% if not tweets %}
+    <div class="card shadow" id="notfound" style="text-align: center; padding: 30px; box-sizing: border-box; border-radius: 20px;">
+      <img src="/static/images/followmore.svg" alt="Follow more users">
+      <h2>Follow Some Users</h2>
+      <p>Twitter-4-Men becomes more enjoyable when you follow people you're interested in. Go to the 'Explore' tab to find people to follow.</p>
+    </div>
+  {% endif %}
   <div class="end">
     
   </div>
